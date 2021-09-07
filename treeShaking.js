@@ -8,6 +8,7 @@
 const acorn = require("acorn")
 const JSEmitter = require('./emitter')
 const fs = require('fs')
+const walk = require('./walk')
 // 获取命令行参数
 const args = process.argv[2]
 const buffer = fs.readFileSync(args).toString()
@@ -16,17 +17,33 @@ const jsEmitter = new JSEmitter()
 let decls = new Map()
 let calledDecls = []
 let code = []
-debugger
+let ident = 0
+const padding = () => ' '.repeat(ident)
 // 遍历处理
-body.forEach(function(node) {
-    if (node.type == "FunctionDeclaration") {
-        const code = jsEmitter.run([node])
-        decls.set(jsEmitter.visitNode(node.id), code)
+body.forEach(function(statement) {
+
+    walk(statement,{
+        enter(node){
+            if(node.type) {
+                console.log(padding()+node.type+'进入')
+                ident+=2
+            }
+        },
+        leave(node){
+            if(node.type) {
+                ident-=2
+                console.log(padding()+node.type+'离开')
+            }
+        }
+    });
+    if (statement.type == "FunctionDeclaration") {
+        const code = jsEmitter.run([statement])
+        decls.set(jsEmitter.visitNode(statement.id), code)
         return;
     }
-    if (node.type == "ExpressionStatement") {
-        if (node.expression.type == "CallExpression") {
-            const callNode = node.expression
+    if (statement.type == "ExpressionStatement") {
+        if (statement.expression.type == "CallExpression") {
+            const callNode = statement.expression
             calledDecls.push(jsEmitter.visitIdentifier(callNode.callee))
             const args = callNode.arguments
             for (const arg of args) {
@@ -36,17 +53,17 @@ body.forEach(function(node) {
             }
         }
     }
-    if (node.type == "VariableDeclaration") {
-        const kind = node.kind
-        for (const decl of node.declarations) {
+    if (statement.type == "VariableDeclaration") {
+        const kind = statement.kind
+        for (const decl of statement.declarations) {
             decls.set(jsEmitter.visitNode(decl.id), jsEmitter.visitVariableDeclarator(decl, kind))
         }
         return
     }
-    if (node.type == "Identifier") {
-        calledDecls.push(node.name)
+    if (statement.type == "Identifier") {
+        calledDecls.push(statement.name)
     }
-    code.push(jsEmitter.run([node]))
+    code.push(jsEmitter.run([statement]))
 });
 // 生成 code
 
