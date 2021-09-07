@@ -10,7 +10,7 @@ const JSEmitter = require('./emitter')
 const fs = require('fs')
 const walk = require('./walk')
 // 获取命令行参数
-const args = process.argv[2]
+const args = process.argv[2];
 const buffer = fs.readFileSync(args).toString()
 const body = acorn.parse(buffer).body
 const jsEmitter = new JSEmitter()
@@ -75,4 +75,5 @@ code = calledDecls.map(c => {
     return decls.get(c)
 }).concat([code]).join('')
 fs.writeFileSync('test.shaked.js', code)
+console.log(123)
 
