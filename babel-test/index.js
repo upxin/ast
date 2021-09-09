@@ -53,9 +53,10 @@ function makeReverseMap(map) {
 }
 
 const reverseCnMap = makeReverseMap(i18Source.zh)
-
-// 构建一个解构的模板
+ 
+// 构建一个解构的模板  在计算机科学中，这被称为 quasiquotes(逆符号) 的实现。
 const buildDestructFunction = template(`const { VALUE } = SOURCE`)
+// 就是想生成 const { 变量 } = 资源  我们这里就是 const { t } = useI18n()
 
 // 找到i18n对应的key
 function findI18nKey(value) {
@@ -96,7 +97,7 @@ traverse(ast, {
       functionBody.unshift(
         buildDestructFunction({
           VALUE: t.identifier(I18_FUNC),
-          SOURCE: t.callExpression(t.identifier(I18_HOOK), []),
+          SOURCE: t.callExpression(t.identifier(I18_HOOK), []), // const { t } = useI18n()
         }),
       )
       this.hasInsertUseI18n = true

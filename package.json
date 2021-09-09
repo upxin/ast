@@ -3,6 +3,7 @@
     "acorn": "^8.5.0",
     "babel": "^6.23.0",
     "babel-template": "^6.26.0",
-    "jscodeshift": "^0.13.0"
+    "jscodeshift": "^0.13.0",
+    "magic-string": "^0.25.7"
   }
 }
